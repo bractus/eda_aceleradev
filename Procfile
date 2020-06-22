@@ -1,1 +1,1 @@
-web: sh setup.sh && streamlit run eda-de-dados.py
+web: sh setup.sh && streamlit run eda_streamlit.py
