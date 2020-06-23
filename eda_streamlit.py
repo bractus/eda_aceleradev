@@ -12,7 +12,6 @@ def main():
     separator = st.radio("Separador: ", (',', ';'))
     file_ = st.file_uploader('Selecione seu arquivo CSV', type='csv')
 
-
     if file_:
 
         df = pd.read_csv(file_, sep=separator)
@@ -21,7 +20,7 @@ def main():
         option = st.sidebar.selectbox(
             "Qual informação deseja ver?",
             ("Básicas", "Descrição (Describe)", "Valores faltantes", "Correlação", "Gráficos de distribuição", 
-            "Valores atípicos (Outliers)" )
+            "Valores atípicos (Outliers)")
         )
 
         if st.sidebar.button('Resetar alterações'):
@@ -43,39 +42,36 @@ def main():
 
         elif option == 'Valores faltantes':
 
-            st.subheader('Valores faltantes: ')
-            heat = msno.matrix(df)
-            st.write(heat)
-            st.pyplot()
-
-            opt = st.radio('Imputar valores faltantes :', ("Mediana", "Média", "Zero", "Moda", "ffill (Séries temporais)"))
+            opt = st.radio('Imputar valores faltantes :', ("Mediana", "Média", "Zero", "Moda"))
             options = st.multiselect('Quais colunas?', df.columns.tolist())
 
             if st.button("Imputar dados"):
                 for i in options:
                     if df[i].dtype == 'object':
                         if opt == "Moda":
-                            df[i] = df[i].fillna(df[i].mode()[0])
+                            df.fillna({i: df[i].mode()[0]}, inplace=True)
                             st.success("Valores imputados com sucesso!")
                         else:
                             st.error("Erro! Variáveis categóricas só podem ser preenchidas com a moda")
                     else:
                         if opt == "Média":
-                            df[i] = df[i].fillna(df[i].mean())
+                            df.fillna({i: df[i].mean()}, inplace=True)
                         elif opt == "Moda":
-                            df[i] = df[i].fillna(df[i].mode()[0])
-                        if opt == "Mediana":
-                            df[i] = df[i].fillna(df[i].median())
-                        if opt == "Zero":
-                            df[i] = df[i].fillna(0)
-                        if opt == "ffill (Séries temporais)":
-                            df[i] = df[i].fillna(method="ffill")
+                            df.fillna({i: df[i].mode()[0]}, inplace=True)
+                        elif opt == "Mediana":
+                            df.fillna({i: df[i].median()}, inplace=True)
+                        elif opt == "Zero":
+                            df.fillna({i: 0}, inplace=True)
                         st.success("Valores imputados com sucesso!")
-        
+
+            st.subheader('Valores faltantes: ')
+            heat = msno.matrix(df)
+            st.write(heat)
+            st.pyplot()
+            
         elif option == "Correlação":
             st.subheader('Correlação: ')
 
-            
             options = st.multiselect('Quais colunas?', df.columns.tolist(), default=list(df.columns))
 
             if len(df[options].columns) > 19:
